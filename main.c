@@ -1,0 +1,574 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <time.h>
+
+const int MIN_HIVE_SIZE = 2; // smallest amount of words allowed
+const int MAX_HIVE_SIZE = 12; // largest amount of words allowed
+const int MIN_WORD_LENGTH = 4; // everyword must be at least 4 letters
+
+typedef struct WordList_struct {
+    char** words; // dynmaic array of strings
+    int numWords; // number of strings
+    int capacity; // maximum amount of strings that can be contained in the array
+} WordList;
+
+WordList* createWordList() {
+    WordList* newList = malloc(sizeof(WordList)); // allocates memory for a new word list
+    newList->capacity = 4; // sets the capacity to 4 words
+    newList->numWords = 0; // sets the current number of words to 0
+    newList->words = malloc(newList->capacity * sizeof(char*)); // allocates memory for the words array with enough mem to store 4 character pointers
+
+    return newList; // returns the newly creates word list
+}
+
+void appendWord(WordList* thisWordList, char* newWord) {
+    if(thisWordList->numWords == thisWordList->capacity) {
+        // if the current word array is at capacity...
+        char** oldWords = thisWordList->words; // create a temp pointer to hold the old word array
+        thisWordList->words = malloc((thisWordList->capacity * 2) * sizeof(char*)); // allocate a new array for the word list with double the size
+        thisWordList->capacity = thisWordList->capacity * 2; // update the capacity argument accordingly
+        memmove(thisWordList->words, oldWords, thisWordList->numWords * sizeof(char*)); // copy the bytes from the old word list to the new word list
+        free(oldWords); // free the memory allocated for the old word list
+    }
+    thisWordList->words[thisWordList->numWords] = malloc(sizeof(newWord)); // allocate new memory for another word in the word list at the last position
+    strcpy(thisWordList->words[thisWordList->numWords], newWord); // copy input word into the new string allocated for the word list
+    (thisWordList->numWords)++;
+    //---------------------------------------------------------------------
+    /* TODO (Task 1-A): Write appendWord
+    - adds newWord to the end of the thisWordList (malloc'ing memory and copying the string; do NOT just copy the input pointer)
+    - increments thisWordList's numWords. If there is no space for the new word, reallocate with double the capacity
+    - by malloc'ing new memory for the words array and freeing the old memory
+    */
+
+}
+
+int buildDictionary(char* filename, WordList* dictionaryList, int minLength) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 1-B): Write buildDictionary
+    - Opens a valid file and adds all words that are at least minLength long to the dictionaryList
+    - Returns the length of the longest valid word if all goes well, -1 otherwise
+    */
+    return 0; //this line is here so that the starter code compiles; replace/modify this line
+}
+
+void freeWordList(WordList* list) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 1-C): Write freeWordList
+    - Frees the memory used by the WordList, both the words' char* arrays and the char** words array itself
+    */
+}
+
+int findLetter(char* str, char aLet) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 2-A): Write findLetter
+    - Returns the index of aLet in str, if it exists
+    - Otherwise returns -1
+    */
+    return -1;
+}
+
+void buildHive(char* str, char* hive) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 2-B): Write buildHive
+    - take each character of the string and add it to the hive in alphabetical order
+    - no letter should be added twice
+    - ensure that hive is null-terminated at the end
+      (findLetter is helpful here)
+    */
+}
+
+int countUniqueLetters(char* str) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 3-A): Write countUniqueLetters
+    - Counts and returns the number of unique letters in the input string 
+      (note: this only needs to work for lower-case alpha characters, i.e. letters, for this project, 
+            but it should work generally for all characters)
+    */
+}
+
+WordList* findAllFitWords(WordList* dictionaryList, int hiveSize) {
+    WordList* fitWords = createWordList();
+    //---------------------------------------------------------------------
+    /* TODO (Task 3-B): Write findAllFitWords
+    - Creates a WordList and adds all fit words from dictionaryList to the new WordList 
+      (A fit word has exactly hiveSize unique letters)
+    */
+    return fitWords;
+}
+
+bool isValidWord(char* word, char* hive, char reqLet) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 4-A, part 1 or 2): Write isValidWord 
+    - Returns true if word 
+      (a) uses ONLY letters that are in the hive, and 
+      (b) MUST use the required letter. 
+    - Returns false otherwise
+    */
+    return false;
+}
+
+bool isPangram(char* str, char* hive) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 4-B): Write isPangram
+    - Returns true if str is a pangram (uses all the letters in hive at least once)
+    - Returns false otherwise
+    */
+
+    return false;
+}
+
+
+void printHive(char* hive, int reqLetInd) {
+    printf("  Hive: \"%s\"\n", hive);
+    printf("         ");
+    for (int i = 0; i < reqLetInd; i++) {
+        printf(" ");
+    }
+    printf("^");
+    for (int i = reqLetInd + 1; i < strlen(hive); i++) {
+        printf(" ");
+    }
+    printf(" (all words must include \'%c\')\n\n", hive[reqLetInd]);
+}
+
+void printList(WordList* thisWordList, char* hive) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 4-C): Write printList
+    - Outputs the words in the list 
+    - Marks pangrams with asterisk and perfect pangrams with three asterisks
+    - Displays score for each word as well as total score at the bottom
+    See example shown below.
+    Word List:
+    *** (16) computer
+        ( 7) compute
+        ( 1) mute
+     *  (17) recompute
+        ( 5) comet
+    Total Score: 46    
+    */
+
+    printf("  Word List:\n");
+    int totScore = 0;
+    printf("  Total Score: %d\n", totScore);
+
+}
+
+void bruteForceSolve(WordList* dictionaryList, WordList* solvedList, char* hive, char reqLet) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 5-A): Write bruteForceSolve
+    - Goes through each word in the dictionary and determines if that is a solution to the puzzle
+    - Adds the word to solvedList if it is a solution
+    */
+}
+
+bool isPrefix(char* partWord, char* fullWord) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 6-A): Write isPrefix
+    - checks if partWord is the root/prefix of fullWord, such that 
+        partWord is a perfect match to the beginning (arbitrary length) of fullWord
+    - returns true is partWord is a root/prefix of fullWord; returns false otherwise 
+    */
+    return 0; //this line is here so that the starter code compiles; replace/modify this line
+}
+
+int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd) {
+    /* TODO (Task 6-B): Complete findWord
+    * - Fix all the if statements that say 'if(true)' with the correct binary search cases
+    */
+    if (hiInd < loInd) { // Base case 2: aWord not found in words[]
+
+        if (loInd < thisWordList->numWords && true) { //TODO: fix the second part of this if statement
+            return -1; //words match this root (partial match)
+        }
+        else {
+            return -99; //no more words matching this root (no match)
+        }
+    }
+
+    int mdInd = (hiInd + loInd) / 2;
+
+    if (true) { // Base case 1: found tryWord at midInd
+        return mdInd;
+    }
+
+    if (true) { // Recursive case: search upper half
+        return findWord(thisWordList, aWord, mdInd + 1, hiInd);
+    }
+
+    // Recursive case: search lower half
+    return findWord(thisWordList, aWord, loInd, mdInd - 1);
+}
+
+void findAllMatches(WordList* dictionaryList, WordList* solvedList, char* tryWord, char* hive, char reqLet) {
+    //---------------------------------------------------------------------
+    /* TODO (Task 6-C): Complete findAllMatches
+
+
+    */
+    int curLen = strlen(tryWord);
+    int index = findWord(dictionaryList, tryWord, 0, dictionaryList->numWords - 1);
+    if (index >= 0) {
+        return;
+    }
+
+    if (index == -1) {
+        return;
+    }
+    else if (index == -99) {
+        return;
+    }
+
+    //call recursive function here ONLY if tryWord is not empty
+    if (true) { return; }
+
+}
+
+// Provided for you, to determine the program settings based on parameters
+bool setSettings(int argc, char* argv[], bool* pRandMode, int* pNumLets, char dictFile[100], bool* pPlayMode, bool* pBruteForceMode, bool* pSeedSelection) {
+    *pRandMode = false;
+    *pNumLets = 0;
+    strcpy(dictFile, "dictionary.txt");
+    *pPlayMode = false;
+    *pBruteForceMode = true;
+    *pSeedSelection = false;
+    srand((int)time(0));
+    //--------------------------------------
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-r") == 0) {
+            ++i;
+            if (argc == i) {
+                return false;
+            }
+            *pRandMode = true;
+            *pNumLets = atoi(argv[i]);
+            if (*pNumLets < MIN_HIVE_SIZE || *pNumLets > MAX_HIVE_SIZE) {
+                return false;
+            }
+        }
+        else if (strcmp(argv[i], "-d") == 0) {
+            ++i;
+            if (argc == i) {
+                return false;
+            }
+            strcpy(dictFile, argv[i]);
+            FILE* filePtr = fopen(dictFile, "r");
+            if (filePtr == NULL) {
+                return false;
+            }
+            fclose(filePtr);
+        }
+        else if (strcmp(argv[i], "-s") == 0) {
+            ++i;
+            if (argc == i) {
+                return false;
+            }
+            *pSeedSelection = true;
+            int seed = atoi(argv[i]);
+            srand(seed);
+        }
+        else if (strcmp(argv[i], "-p") == 0) {
+            *pPlayMode = true;
+        }
+        else if (strcmp(argv[i], "-o") == 0) {
+            *pBruteForceMode = false;
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+
+void printONorOFF(bool mode) {
+    if (mode) {
+        printf("ON\n");
+    }
+    else {
+        printf("OFF\n");
+    }
+}
+
+void printYESorNO(bool mode) {
+    if (mode) {
+        printf("YES\n");
+    }
+    else {
+        printf("NO\n");
+    }
+}
+
+
+
+int main(int argc, char* argv[]) {
+
+    printf("\n----- Welcome to the CS 211 Spelling Bee Game & Solver! -----\n\n");
+
+    bool randMode = false;
+    int hiveSize = 0;
+    char dict[100] = "dictionary.txt";
+    bool playMode = false;
+    bool bruteForce = true;
+    bool seedSelection = false;
+    char hive[MAX_HIVE_SIZE + 1] = {};
+    hive[0] = '\0';
+    int reqLetInd = -1;
+    char reqLet = '\0';
+
+
+    if (!setSettings(argc, argv, &randMode, &hiveSize, dict, &playMode, &bruteForce, &seedSelection)) {
+        printf("Invalid command-line argument(s).\nTerminating program...\n");
+        return 1;
+    }
+    else {
+        printf("Program Settings:\n");
+        printf("  random mode = ");
+        printONorOFF(randMode);
+        printf("  play mode = ");
+        printONorOFF(playMode);
+        printf("  brute force solution = ");
+        printONorOFF(bruteForce);
+        printf("  dictionary file = %s\n", dict);
+        printf("  hive set = ");
+        printYESorNO(randMode);
+        printf("\n\n");
+    }
+
+    // build word array (only words with desired minimum length or longer) from dictionary file
+    printf("Building array of words from dictionary... \n");
+    WordList* dictionaryList = createWordList();
+    int maxWordLength = buildDictionary(dict, dictionaryList, MIN_WORD_LENGTH);
+    if (maxWordLength == -1) {
+        printf("  ERROR in building word array.\n");
+        printf("  File not found or incorrect number of valid words.\n");
+        printf("Terminating program...\n");
+        return 0;
+    }
+    printf("   Word array built!\n\n");
+
+
+    printf("Analyzing dictionary...\n");
+
+    if (dictionaryList->numWords < 0) {
+        printf("  Dictionary %s not found...\n", dict);
+        printf("Terminating program...\n");
+        return 0;
+    }
+
+    // end program if file has zero words of minimum desired length or longer
+    if (dictionaryList->numWords == 0) {
+        printf("  Dictionary %s contains insufficient words of length %d or more...\n", dict, MIN_WORD_LENGTH);
+        printf("Terminating program...\n");
+        return 0;
+    }
+    else {
+        printf("  Dictionary %s contains \n  %d words of length %d or more;\n", dict, dictionaryList->numWords, MIN_WORD_LENGTH);
+    }
+
+
+
+
+    if (randMode) {
+        printf("==== SET HIVE: RANDOM MODE ====\n");
+        //find number of words in words array that use hiveSize unique letters
+        WordList* fitWords = findAllFitWords(dictionaryList, hiveSize);
+        int numFitWords = fitWords->numWords;
+        //pick one at random
+        int pickOne = rand() % numFitWords;
+        char* chosenFitWord = fitWords->words[pickOne];
+
+        //and alaphabetize the unique letters to make the letter hive
+        buildHive(chosenFitWord, hive);
+        freeWordList(fitWords);
+
+        reqLetInd = rand() % hiveSize;
+        reqLet = hive[reqLetInd];
+
+    }
+    else {
+        printf("==== SET HIVE: USER MODE ====\n");
+
+        printf("  Enter a single string of lower-case,\n  unique letters for the letter hive... ");
+
+        //---------------------------------------------------------------------
+        /* TODO (Task 2-C): Get hive input (part 1 of 2)
+         - Write code for randMode OFF, where user enters the hive; use the print statements below in the exact order you see them
+         - ask the user to enter a string, following these requirements:
+             - must be lowercase letters
+             - string length must not be below MIN_HIVE_SIZE or above MAX_HIVE_SIZE
+             - must not have any duplicate letters (you might find a helper function useful for this part)
+         - If a word is invalid, display the appropriate error below and repeat until there is valid input
+         - You may use buildHive() to help with this task
+         (Task 2-C is continued a few lines below, getting the required letter)
+        */
+        printf("  HIVE ERROR: \"%s\" has invalid length;\n  valid hive size is between %d and %d, inclusive\n\n",hive, MIN_HIVE_SIZE, MAX_HIVE_SIZE);
+        printf("  HIVE ERROR: \"%s\" contains invalid letters;\n  valid characters are lower-case alpha only\n\n",hive);
+        printf("  HIVE ERROR: \"%s\" contains duplicate letters\n\n",hive);
+
+        
+
+        hiveSize = strlen(hive);
+
+        reqLetInd = -1;
+        reqLet = '\0';
+
+
+        printf("  Enter the letter from \"%s\"\n  that is required for all words: ", hive);
+        //---------------------------------------------------------------------
+        /* TODO (Task 2-C): Get hive input (part 2 of 2)
+        - Ask the user to enter the required letter, using the print statement above
+        - If the letter is not in the hive, display the error message below and repeat the prompt until input is valid
+        - If the letter the user enters is within the hive, then find the index of that letter in the hive,
+        set that value you found for reqLetInd, and change reqLet to the required letter
+        - Note that uppercase letters ARE valid here, unlike earlier; you will find it helpful to make them lowercase in code
+        */
+        printf("  HIVE ERROR: \"%s\" does not contain the letter \'%c\'\n\n",hive,reqLet);
+    }
+
+    printHive(hive, reqLetInd);
+
+    if (playMode) {
+        printf("==== PLAY MODE ====\n");
+    //---------------------------------------------------------------------
+    //              BEGINNING OF OPEN-ENDED GAMEPLAY SECTION
+    //---------------------------------------------------------------------
+    
+            /* TODO (Task 4, OPEN-ENDED GAMEPLAY): develop a creative gameplay extension.
+                The code is currently a framework for repeatedly taking in words from the user, 
+                until they enter DONE. Extend/replace/modify this section to implement
+                your creative gameplay extension.
+
+            */
+
+        char* userWord = (char*)malloc((maxWordLength + 1) * sizeof(char));
+        strcpy(userWord, "default");
+
+        WordList* userWordList = createWordList();
+
+        printf("............................................\n");
+        printHive(hive, reqLetInd);
+
+
+        printf("  Enter a word (enter DONE to quit): ");
+        scanf("%s", userWord);
+        printf("\n");
+
+
+        while (strcmp(userWord, "DONE")) {
+
+            
+
+            
+            
+            //prints the list and the hive, and gets the next input
+            printf("\n");
+            printList(userWordList, hive);
+            printf("............................................\n");
+            printHive(hive, reqLetInd);
+
+            printf("  Enter a word (enter DONE to quit): ");
+            scanf("%s", userWord);
+            printf("\n");
+
+        }
+
+        freeWordList(userWordList);
+        free(userWord);
+
+    //---------------------------------------------------------------------    
+    //                 END OF OPEN-ENDED GAMEPLAY SECTION
+    //---------------------------------------------------------------------
+    }
+    
+        
+
+    printf("==== SPELLING BEE SOLVER ====\n");
+
+    printf("  Valid words from hive \"%s\":\n", hive);
+    printf("                         ");
+    for (int i = 0; i < reqLetInd; i++) {
+        printf(" ");
+    }
+    printf("^\n");
+
+    WordList* solvedList = createWordList();
+
+    if (bruteForce) { //find all words that work... (1) brute force
+        bruteForceSolve(dictionaryList, solvedList, hive, reqLet);
+    }
+    else {
+        char* tryWord = (char*)malloc(sizeof(char) * (maxWordLength + 1));
+
+        tryWord[0] = hive[0];
+        tryWord[1] = '\0';
+        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet);
+        free(tryWord);
+
+    }
+
+    int longestSolvedWordLen = 0;
+    for (int i = 0; i < solvedList->numWords; i++) {
+        if (strlen(solvedList->words[i]) > longestSolvedWordLen) {
+            longestSolvedWordLen = strlen(solvedList->words[i]);
+        }
+    }
+
+    // Helpful variables
+    int numValidWords = 0;
+    int numPangrams = 0;
+    int numPerfectPangrams = 0;
+    int totScore = 0;
+    int score = 0;
+    bool isBingo = true;
+
+    //---------------------------------------------------------------------
+    /* TODO (Task 5-B): Display solver results
+    - Display list of words solver found, noting pangrams (*) and perfect pangrams (***) with asterisks
+    - Calculate the number of valid words, number of pangrams, number of perfect pangrams, 
+          total possible score, and whether there is a bingo. Save those values in the corresponding
+          variables, or update the printf statements below to dispay those values
+    */
+
+
+    
+    // Additional results are printed here:
+    printf("\n");
+    printf("  Total counts for hive \"%s\":\n", hive);
+    printf("                         ");
+    for (int i = 0; i < reqLetInd; i++) {
+        printf(" ");
+    }
+    printf("^\n");
+    printf("    Number of Valid Words: %d\n", numValidWords);
+    printf("    Number of ( * ) Pangrams: %d\n", numPangrams);
+    printf("    Number of (***) Perfect Pangrams: %d\n", numPerfectPangrams);
+    printf("    Bingo: ");
+    printYESorNO(isBingo);
+    printf("    Total Score Possible: %d\n", totScore);
+
+    //---------------------------------------------------------------------
+    /* TODO Extra credit: Display frequency table
+    - Display a table showing the number of words starting with each letter and duration in a table.
+    - For example, with the hive abcde and required letter e:
+             Frequency Table:
+             let  4  5  6  7  8
+             -------------------
+              a:  3  1  1  1  0
+              b:  3  1  4  0  0
+              c:  3  1  0  0  1
+              d:  3  0  3  0  0
+              e:  0  1  0  0  0
+       The table shows that there are 3 words that start with a and are 4 letters long, 
+       and 1 each that are 5, 6, and 7 letters long and start with a.
+       Note that the lengths 4-8 are shown here because the longest word is 8 letters long,
+       but that will change depending on the hive
+    */
+
+    freeWordList(dictionaryList);
+    freeWordList(solvedList);
+    printf("\n\n");
+    return 0;
+}
+
