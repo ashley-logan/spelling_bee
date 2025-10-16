@@ -28,12 +28,12 @@ void appendWord(WordList* thisWordList, char* newWord) {
     if(thisWordList->numWords == thisWordList->capacity) {
         // if the current word array is at capacity...
         char** oldWords = thisWordList->words; // create a temp pointer to hold the old word array
-        thisWordList->words = malloc((thisWordList->capacity * 2) * sizeof(char*)); // allocate a new array for the word list with double the size
+        thisWordList->words = (char**)malloc((thisWordList->capacity * 2) * sizeof(char*)); // allocate a new array for the word list with double the size
         thisWordList->capacity = thisWordList->capacity * 2; // update the capacity argument accordingly
         memmove(thisWordList->words, oldWords, thisWordList->numWords * sizeof(char*)); // copy the bytes from the old word list to the new word list
         free(oldWords); // free the memory allocated for the old word list
     }
-    thisWordList->words[thisWordList->numWords] = malloc(sizeof(newWord)); // allocate new memory for another word in the word list at the last position
+    thisWordList->words[thisWordList->numWords] = (char*)malloc((strlen(newWord) + 1) * sizeof(char)); // allocate new memory for another word in the word list at the last position
     strcpy(thisWordList->words[thisWordList->numWords], newWord); // copy input word into the new string allocated for the word list
     (thisWordList->numWords)++;
     //---------------------------------------------------------------------
@@ -46,15 +46,40 @@ void appendWord(WordList* thisWordList, char* newWord) {
 }
 
 int buildDictionary(char* filename, WordList* dictionaryList, int minLength) {
+    FILE* dictFile = fopen(filename, "r");
+    if (dictFile == NULL) { // if file doesn't open return -1
+        return -1;
+    }
+    int i = dictionaryList->numWords; // int i will track the current index of dictionaryList
+    int maxLen = -1; // initialize maxLen to default of -1, will contain the length of the longest word
+    while(!feof(dictFile)) { // while not at the end of file
+        char tempStr[50]; // temporary string to hold inputted word
+        fscanf(dictFile, "%s", tempStr); // scan the input into temporary string
+        if(strlen(tempStr) >= minLength) { // add word to list if length is at least the minimum parameter
+            dictionaryList->words[i] = (char*)malloc(sizeof(char) * (strlen(tempStr) + 1);
+            strcpy(dictionaryList->words[i], tempStr);
+            i++;
+            if(strlen(tempStr) > maxLen) {
+                maxLen = strlen(tempStr);
+            }
+        }
+    }
+    dictionaryList->numWords = i;
+    return maxLen;
+    
     //---------------------------------------------------------------------
     /* TODO (Task 1-B): Write buildDictionary
     - Opens a valid file and adds all words that are at least minLength long to the dictionaryList
     - Returns the length of the longest valid word if all goes well, -1 otherwise
     */
-    return 0; //this line is here so that the starter code compiles; replace/modify this line
 }
 
 void freeWordList(WordList* list) {
+    for(int i = 0; i < list->numWords; i++) {
+        free(list->words[i]);
+    }
+    free(list->words);
+    free(list);
     //---------------------------------------------------------------------
     /* TODO (Task 1-C): Write freeWordList
     - Frees the memory used by the WordList, both the words' char* arrays and the char** words array itself
@@ -62,41 +87,70 @@ void freeWordList(WordList* list) {
 }
 
 int findLetter(char* str, char aLet) {
+    char* ptr = strchr(str, aLet);
+    if(ptr == NULL) {
+        return -1;
+    }
+
+    return ptr - str;
     //---------------------------------------------------------------------
     /* TODO (Task 2-A): Write findLetter
     - Returns the index of aLet in str, if it exists
     - Otherwise returns -1
     */
-    return -1;
 }
 
 void buildHive(char* str, char* hive) {
+    char* travHive = hive;
+    for(char c = 'a'; c <= 'z'; c++) { // loop through every lowercase letter in the alphabet
+        if(findLetter((str), c) != -1 || findLetter(str, toupper(c)) != -1) {
+            // if the word has the current letter (lowercase or uppercase) append it to hive
+            *travHive = c; 
+            travHive++; // increment hive
+        }
+    }
+    *travHive = '\0'; // null terminate hive
     //---------------------------------------------------------------------
     /* TODO (Task 2-B): Write buildHive
     - take each character of the string and add it to the hive in alphabetical order
     - no letter should be added twice
     - ensure that hive is null-terminated at the end
-      (findLetter is helpful here)
+    (findLetter is helpful here)
     */
 }
 
 int countUniqueLetters(char* str) {
+    int count = 0;
+    for(int i = 0; i < 256; i++) {
+        if(findLetter(str, atoi(i)) != -1) {
+            count++;
+        }
+    }
+    return count;
     //---------------------------------------------------------------------
     /* TODO (Task 3-A): Write countUniqueLetters
     - Counts and returns the number of unique letters in the input string 
-      (note: this only needs to work for lower-case alpha characters, i.e. letters, for this project, 
+    (note: this only needs to work for lower-case alpha characters, i.e. letters, for this project, 
             but it should work generally for all characters)
     */
 }
 
 WordList* findAllFitWords(WordList* dictionaryList, int hiveSize) {
     WordList* fitWords = createWordList();
+    char** travWords = fitWords->words; // ptr to traverse the array of strings
+    for(int i = 0; i < dictionaryList->numWords; i++) {
+        if(countUniqueLetters(dictionaryList->words[i]) == hiveSize) {
+            *travWords = (char*)malloc(strlen((dictionaryList->words[i] + 1) * sizeof(char)); // allocate space for the fit word
+            strcpy(*travWords, dictionaryList->words[i]); // copy the fit words to the new list
+            travWords++; // increment the array of strings to the next string
+        }
+    }
+    return fitWords;
     //---------------------------------------------------------------------
     /* TODO (Task 3-B): Write findAllFitWords
     - Creates a WordList and adds all fit words from dictionaryList to the new WordList 
       (A fit word has exactly hiveSize unique letters)
     */
-    return fitWords;
 }
 
 bool isValidWord(char* word, char* hive, char reqLet) {
