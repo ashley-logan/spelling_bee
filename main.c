@@ -49,18 +49,13 @@ int buildDictionary(char* filename, WordList* dictionaryList, int minLength) {
     if (dictFile == NULL) { // if file doesn't open return -1
         return -1;
     }
-    int maxLen = -1; // initialize maxLen to default of -1, will contain the length of the longest word
+    char tempStr[50];
+    int maxLen = 0; // initialize maxLen to default of -1, will contain the length of the longest word
 
-    while(!feof(dictFile)) { // while not at the end of file and dictionaryList is not full
-        char tempStr[50]; // temporary string to hold inputted word
-        fscanf(dictFile, "%s", tempStr); // scan the input into temporary string
-
-        if(strlen(tempStr) >= minLength) { // add word to list if length is at least the minimum parameter
+    while(fscanf(dictFile, "%s", tempStr) == 1) { // while not at the end of file and dictionaryList is not full
+        if((int)strlen(tempStr) >= minLength) { // add word to list if length is at least the minimum parameter
+            maxLen = (strlen(tempStr) > maxLen)? strlen(tempStr) : maxLen;
             appendWord(dictionaryList, tempStr);
-
-            if(strlen(tempStr) > maxLen) {
-                maxLen = strlen(tempStr);
-            }
         }
     }
     return maxLen;
@@ -217,10 +212,10 @@ void printHive(char* hive, int reqLetInd) {
 
 void printList(WordList* thisWordList, char* hive) {
     for(int i = 0; i < thisWordList->numWords; i++) {
-        if(isPangram(thisWordList->words[i])) {
+        if(isPangram(thisWordList->words[i], hive)) {
             (strlen(thisWordList->words[i]) == strlen(hive))? printf("***") : printf("*");
         }
-        printf("(%d) %s", i, thisWordList->words[i]);
+        printf("(%d) %s", getScore(thisWordList->words[i], hive), thisWordList->words[i]);
     }
     //---------------------------------------------------------------------
     /* TODO (Task 4-C): Write printList
@@ -246,7 +241,7 @@ void printList(WordList* thisWordList, char* hive) {
 void bruteForceSolve(WordList* dictionaryList, WordList* solvedList, char* hive, char reqLet) {
     for(int i = 0; i < dictionaryList->numWords; i++) {
         if(isValidWord(dictionaryList->words[i], hive, reqLet)) {
-            appendWord(solvedList, dictionaryList[i]);
+            appendWord(solvedList, dictionaryList->words[i]);
         }
     }
     //---------------------------------------------------------------------
@@ -286,7 +281,7 @@ int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd, bool isR
 
     int mdInd = (hiInd + loInd) / 2;
 
-    if (strcmp(aWord, thisWordList[mdInd]) == 0) { // Base case 1: found tryWord at midInd
+    if (strcmp(aWord, thisWordList->words[mdInd]) == 0) { // Base case 1: found tryWord at midInd
         return mdInd;
     }
 
@@ -295,7 +290,7 @@ int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd, bool isR
         isRoot = true;
     }
 
-    if (strcmp(aWord, thisWordList[mdInd]) > 0) { // Recursive case: search upper half
+    if (strcmp(aWord, thisWordList->words[mdInd]) > 0) { // Recursive case: search upper half
         return findWord(thisWordList, aWord, mdInd + 1, hiInd, isRoot);
     }
 
@@ -303,61 +298,41 @@ int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd, bool isR
     return findWord(thisWordList, aWord, loInd, mdInd - 1, isRoot);
 }
 
-void appendCase(char* tryWord, char* hive, int* n) {
-    // appends the first character in the hive to the end of the tryWord
-    tryWord[strlen(tryWord)] = hive[0];
-    *n = 1; // increases the hive index tracker by one
-}
-
-void replaceCase(char* tryWord, char* hive, int* n) {
-    // replaces the current character with the next character in the hive
-    (*n)++;
-    tryWord[strlen(tryWord)-1] = hive[*n];
-}
-
-
-
-void findAllMatches(WordList* dictionaryList, WordList* solvedList, char* tryWord, char* hive, char reqLet, int maxLen, int* n) {
+void findAllMatches(WordList* dictionaryList, WordList* solvedList, char* tryWord, char* hive, char reqLet, int maxLen, int* letTracker) {
 
     int curLen = strlen(tryWord);
-    printf("Tryword: %s\n", tryWord);
+    if(curLen > maxLen) {
+        return;
+    }
+
     int index = findWord(dictionaryList, tryWord, 0, dictionaryList->numWords - 1, false);
+
     if (index >= 0 && isValidWord(tryWord, hive, reqLet)) {
-        appendWord(solvedList, tryWord);
-        if(curLen == maxLen) {
-            replaceCase(tryWord, hive, n);
+        // tryWord found in dicionary and is valid
+        if(findWord(solvedList, tryWord, 0, solvedList->numWords-1, false) < 0) {
+            // word is not already in solved list
+            appendWord(solvedList, tryWord);
         }
-        else{
-            appendCase(tryWord, hive, n);
-        }
-        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, n);
+    }
+
+    if(index == -99) {
+        // no match and no prefix, do not append
         return;
     }
 
-    if (index == -1) {
-        if(curLen == maxLen) {
-            replaceCase(tryWord, hive, n);
+    for(int i = 0; hive[i] != '\0'; i++) {
+        if(letTracker[i] == 0) {
+            letTracker[i] = 1;
+            tryWord[curLen] = hive[i];
+            tryWord[curLen+1] = '\0';
+
+            findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, letTracker);
+
+            tryWord[curLen] = '\0';
+            letTracker[i] = 0;
         }
-        else {
-            appendCase(tryWord, hive, n);
-        }
-        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, n+1);
-        return;
-    }
-    else if (index == -99) {
-        if(*n == (strlen(hive)-1)) {
-            return;
-        }
-        replaceCase(tryWord, hive, n);
-        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, n+1);
-        return;
     }
 
-    //call recursive function here ONLY if tryWord is not empty
-    if (strlen(tryWord) > 0) {
-        tryWord
-        findAllMatches(dictionaryList, solvedList, )
-    }
 
 }
 
@@ -435,6 +410,23 @@ void printYESorNO(bool mode) {
     }
 }
 
+int getScore(char* word, char* hive) {
+    /* Valid words with MIN_WORD_LENGTH = 4 letters are worth 1 point each.
+    Longer valid words earn 1 point per letter. (So a 5-letter word is worth 5 points.)
+    Each puzzle includes at least one “pangram” which uses every letter. 
+    These are worth hiveSize extra points! (Ex: if hiveSize = 7, 
+        then a pangram of length 9 will earn 9 + 7 = 16 points.)
+    */
+    if(strlen(word) < MIN_WORD_LENGTH) {
+        printf("ERROR: word too small line::421");
+        return -1;
+    }
+    int pts = (strlen(word) == MIN_WORD_LENGTH) ? 1 : strlen(word);
+    if(isPangram(word)) {
+        pts += strlen(hive);
+    }
+    return pts;
+}
 
 
 int main(int argc, char* argv[]) {
@@ -447,7 +439,7 @@ int main(int argc, char* argv[]) {
     bool playMode = false;
     bool bruteForce = true;
     bool seedSelection = false;
-    char hive[MAX_HIVE_SIZE + 1] = {};
+    char hive[MAX_HIVE_SIZE + 1];
     hive[0] = '\0';
     int reqLetInd = -1;
     char reqLet = '\0';
@@ -548,13 +540,13 @@ int main(int argc, char* argv[]) {
             reqLetInd = -1;
             reqLet = '\0';
             printf("  Enter the letter from \"%s\"\n  that is required for all words: ", hive);
-            scanf("%c", reqLet);
+            scanf(" %c", &reqLet);
             reqLet = tolower(reqLet);
+            if(reqLet == '\0') {
+                continue;
+            }
             if(strchr(hive, reqLet) == NULL) {
                 printf("  HIVE ERROR: \"%s\" does not contain the letter \'%c\'\n\n",hive,reqLet);
-            }
-            else if(reqLet == '\0') {
-                continue;
             }
             else {
                 okInput = true;
@@ -662,9 +654,10 @@ int main(int argc, char* argv[]) {
 
         tryWord[0] = hive[0];
         tryWord[1] = '\0';
-        int n = 0; // tracks the index of the letter (in the hive) being appended or replaced
-        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxWordLength, &n);
+        int* letTracker = calloc(strlen(hive), sizeof(int)); // tracks the index of the letter (in the hive) being appended or replaced
+        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxWordLength, letTracker);
         free(tryWord);
+        free(letTracker);
 
     }
 
@@ -676,12 +669,33 @@ int main(int argc, char* argv[]) {
     }
 
     // Helpful variables
-    int numValidWords = 0;
+    bool isBingo = true;
     int numPangrams = 0;
     int numPerfectPangrams = 0;
     int totScore = 0;
-    int score = 0;
-    bool isBingo = true;
+    int* bingoTrack = calloc(strlen(hive), sizeof(int));
+
+    int numValidWords = solvedList->numWords;
+    for(int i = 0; i < numValidWords; i++) {
+
+        if(isPangram(solvedList->words[i])) {
+            numPangrams++;
+            if(strlen(solvedList->words[i]) == strlen(hive)) {
+                numPerfectPangrams++;
+            }
+        }
+        totScore += getScore(solvedList->words[i], hive);
+        char* hiveInd = strchr(hive, (solvedList->words[i])[0]);
+        bingoTrack[hiveInd - hive]++;
+    }
+
+    for(int i = 0; i < strlen(hive); i++) {
+        if(bingoTrack[i] < 1) {
+            isBingo = false;
+        }
+    }
+    free(bingoTrack);
+
 
     //---------------------------------------------------------------------
     /* TODO (Task 5-B): Display solver results
@@ -690,6 +704,7 @@ int main(int argc, char* argv[]) {
           total possible score, and whether there is a bingo. Save those values in the corresponding
           variables, or update the printf statements below to dispay those values
     */
+    printList(solvedList, hive);
 
 
     
