@@ -26,12 +26,11 @@ WordList* createWordList() {
 
 void appendWord(WordList* thisWordList, char* newWord) {
     if(thisWordList->numWords == thisWordList->capacity) {
-        // if the current word array is at capacity...
-        char** oldWords = thisWordList->words; // create a temp pointer to hold the old word array
-        thisWordList->words = (char**)malloc((thisWordList->capacity * 2) * sizeof(char*)); // allocate a new array for the word list with double the size
-        thisWordList->capacity = thisWordList->capacity * 2; // update the capacity argument accordingly
-        memmove(thisWordList->words, oldWords, thisWordList->numWords * sizeof(char*)); // copy the bytes from the old word list to the new word list
-        free(oldWords); // free the memory allocated for the old word list
+        char** largerList = realloc(thisWordList->words, (thisWordList->capacity * 2) * sizeof(char*));
+        if (largerList != NULL) {
+            thisWordList->words = largerList;
+            thisWordList->capacity *= 2;
+        }
     }
     thisWordList->words[thisWordList->numWords] = (char*)malloc((strlen(newWord) + 1) * sizeof(char)); // allocate new memory for another word in the word list at the last position
     strcpy(thisWordList->words[thisWordList->numWords], newWord); // copy input word into the new string allocated for the word list
@@ -50,21 +49,20 @@ int buildDictionary(char* filename, WordList* dictionaryList, int minLength) {
     if (dictFile == NULL) { // if file doesn't open return -1
         return -1;
     }
-    int i = dictionaryList->numWords; // int i will track the current index of dictionaryList
     int maxLen = -1; // initialize maxLen to default of -1, will contain the length of the longest word
-    while(!feof(dictFile)) { // while not at the end of file
+
+    while(!feof(dictFile)) { // while not at the end of file and dictionaryList is not full
         char tempStr[50]; // temporary string to hold inputted word
         fscanf(dictFile, "%s", tempStr); // scan the input into temporary string
+
         if(strlen(tempStr) >= minLength) { // add word to list if length is at least the minimum parameter
-            dictionaryList->words[i] = (char*)malloc(sizeof(char) * (strlen(tempStr) + 1);
-            strcpy(dictionaryList->words[i], tempStr);
-            i++;
+            appendWord(dictionaryList, tempStr);
+
             if(strlen(tempStr) > maxLen) {
                 maxLen = strlen(tempStr);
             }
         }
     }
-    dictionaryList->numWords = i;
     return maxLen;
     
     //---------------------------------------------------------------------
@@ -122,7 +120,7 @@ void buildHive(char* str, char* hive) {
 int countUniqueLetters(char* str) {
     int count = 0;
     for(int i = 0; i < 256; i++) {
-        if(findLetter(str, atoi(i)) != -1) {
+        if(findLetter(str, (char)i) != -1) {
             count++;
         }
     }
@@ -137,12 +135,9 @@ int countUniqueLetters(char* str) {
 
 WordList* findAllFitWords(WordList* dictionaryList, int hiveSize) {
     WordList* fitWords = createWordList();
-    char** travWords = fitWords->words; // ptr to traverse the array of strings
     for(int i = 0; i < dictionaryList->numWords; i++) {
         if(countUniqueLetters(dictionaryList->words[i]) == hiveSize) {
-            *travWords = (char*)malloc(strlen((dictionaryList->words[i] + 1) * sizeof(char)); // allocate space for the fit word
-            strcpy(*travWords, dictionaryList->words[i]); // copy the fit words to the new list
-            travWords++; // increment the array of strings to the next string
+            appendWord(fitWords, dictionaryList->words[i]);
         }
     }
     return fitWords;
@@ -153,7 +148,39 @@ WordList* findAllFitWords(WordList* dictionaryList, int hiveSize) {
     */
 }
 
+bool strLower(char* word) {
+    for(int i = 0; word[i] != '\0'; i++) {
+        if(!islower(word[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool noDups(char* word) {
+    char* travWord = word;
+    while(*travWord != '\0') {
+        if(strchr(word, *travWord) != travWord) { 
+            // if strchr returns a pointer to a location that is not the current pointer, then another instance of the letter occurs
+            return false;
+        }
+        travWord++; // increment the pointer
+    }
+    return true; // otherwise there are no duplicates
+}
+
 bool isValidWord(char* word, char* hive, char reqLet) {
+    if(strchr(word, reqLet) == NULL) {
+        // if the word doesn't use the required letter return false
+        return false;
+    }
+
+    for(int i = 0; word[i] != '\0'; i++) {
+        // if the word contains a letter that isn't in the hive return false
+        if(strchr(hive, word[i]) == NULL) {
+            return false;
+        }
+    }
     //---------------------------------------------------------------------
     /* TODO (Task 4-A, part 1 or 2): Write isValidWord 
     - Returns true if word 
@@ -161,17 +188,17 @@ bool isValidWord(char* word, char* hive, char reqLet) {
       (b) MUST use the required letter. 
     - Returns false otherwise
     */
-    return false;
+    return true; // otherwise return true
 }
 
 bool isPangram(char* str, char* hive) {
+    return countUniqueLetters(str) == countUniqueLetters(hive);
     //---------------------------------------------------------------------
     /* TODO (Task 4-B): Write isPangram
     - Returns true if str is a pangram (uses all the letters in hive at least once)
     - Returns false otherwise
     */
 
-    return false;
 }
 
 
@@ -189,6 +216,12 @@ void printHive(char* hive, int reqLetInd) {
 }
 
 void printList(WordList* thisWordList, char* hive) {
+    for(int i = 0; i < thisWordList->numWords; i++) {
+        if(isPangram(thisWordList->words[i])) {
+            (strlen(thisWordList->words[i]) == strlen(hive))? printf("***") : printf("*");
+        }
+        printf("(%d) %s", i, thisWordList->words[i]);
+    }
     //---------------------------------------------------------------------
     /* TODO (Task 4-C): Write printList
     - Outputs the words in the list 
@@ -211,6 +244,11 @@ void printList(WordList* thisWordList, char* hive) {
 }
 
 void bruteForceSolve(WordList* dictionaryList, WordList* solvedList, char* hive, char reqLet) {
+    for(int i = 0; i < dictionaryList->numWords; i++) {
+        if(isValidWord(dictionaryList->words[i], hive, reqLet)) {
+            appendWord(solvedList, dictionaryList[i]);
+        }
+    }
     //---------------------------------------------------------------------
     /* TODO (Task 5-A): Write bruteForceSolve
     - Goes through each word in the dictionary and determines if that is a solution to the puzzle
@@ -219,22 +257,26 @@ void bruteForceSolve(WordList* dictionaryList, WordList* solvedList, char* hive,
 }
 
 bool isPrefix(char* partWord, char* fullWord) {
+    if(strlen(partWord) >= strlen(fullWord)) {
+        // if the prefix is equal or longer than the full word it canno be a prefix; return false
+        return false;
+    }
+    return strncmp(partWord, fullWord, strlen(partWord)) == 0;
     //---------------------------------------------------------------------
     /* TODO (Task 6-A): Write isPrefix
     - checks if partWord is the root/prefix of fullWord, such that 
         partWord is a perfect match to the beginning (arbitrary length) of fullWord
     - returns true is partWord is a root/prefix of fullWord; returns false otherwise 
     */
-    return 0; //this line is here so that the starter code compiles; replace/modify this line
 }
 
-int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd) {
+int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd, bool isRoot) {
     /* TODO (Task 6-B): Complete findWord
     * - Fix all the if statements that say 'if(true)' with the correct binary search cases
     */
     if (hiInd < loInd) { // Base case 2: aWord not found in words[]
 
-        if (loInd < thisWordList->numWords && true) { //TODO: fix the second part of this if statement
+        if ((loInd < thisWordList->numWords) && isRoot) {
             return -1; //words match this root (partial match)
         }
         else {
@@ -244,39 +286,78 @@ int findWord(WordList* thisWordList, char* aWord, int loInd, int hiInd) {
 
     int mdInd = (hiInd + loInd) / 2;
 
-    if (true) { // Base case 1: found tryWord at midInd
+    if (strcmp(aWord, thisWordList[mdInd]) == 0) { // Base case 1: found tryWord at midInd
         return mdInd;
     }
 
-    if (true) { // Recursive case: search upper half
-        return findWord(thisWordList, aWord, mdInd + 1, hiInd);
+    if(isPrefix(aWord, thisWordList->words[mdInd])) {
+        // if the word is a prefix of a word in the word list, set the flag to true
+        isRoot = true;
+    }
+
+    if (strcmp(aWord, thisWordList[mdInd]) > 0) { // Recursive case: search upper half
+        return findWord(thisWordList, aWord, mdInd + 1, hiInd, isRoot);
     }
 
     // Recursive case: search lower half
-    return findWord(thisWordList, aWord, loInd, mdInd - 1);
+    return findWord(thisWordList, aWord, loInd, mdInd - 1, isRoot);
 }
 
-void findAllMatches(WordList* dictionaryList, WordList* solvedList, char* tryWord, char* hive, char reqLet) {
-    //---------------------------------------------------------------------
-    /* TODO (Task 6-C): Complete findAllMatches
+void appendCase(char* tryWord, char* hive, int* n) {
+    // appends the first character in the hive to the end of the tryWord
+    tryWord[strlen(tryWord)] = hive[0];
+    *n = 1; // increases the hive index tracker by one
+}
+
+void replaceCase(char* tryWord, char* hive, int* n) {
+    // replaces the current character with the next character in the hive
+    (*n)++;
+    tryWord[strlen(tryWord)-1] = hive[*n];
+}
 
 
-    */
+
+void findAllMatches(WordList* dictionaryList, WordList* solvedList, char* tryWord, char* hive, char reqLet, int maxLen, int* n) {
+
     int curLen = strlen(tryWord);
-    int index = findWord(dictionaryList, tryWord, 0, dictionaryList->numWords - 1);
-    if (index >= 0) {
+    printf("Tryword: %s\n", tryWord);
+    int index = findWord(dictionaryList, tryWord, 0, dictionaryList->numWords - 1, false);
+    if (index >= 0 && isValidWord(tryWord, hive, reqLet)) {
+        appendWord(solvedList, tryWord);
+        if(curLen == maxLen) {
+            replaceCase(tryWord, hive, n);
+        }
+        else{
+            appendCase(tryWord, hive, n);
+        }
+        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, n);
         return;
     }
 
     if (index == -1) {
+        if(curLen == maxLen) {
+            replaceCase(tryWord, hive, n);
+        }
+        else {
+            appendCase(tryWord, hive, n);
+        }
+        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, n+1);
         return;
     }
     else if (index == -99) {
+        if(*n == (strlen(hive)-1)) {
+            return;
+        }
+        replaceCase(tryWord, hive, n);
+        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxLen, n+1);
         return;
     }
 
     //call recursive function here ONLY if tryWord is not empty
-    if (true) { return; }
+    if (strlen(tryWord) > 0) {
+        tryWord
+        findAllMatches(dictionaryList, solvedList, )
+    }
 
 }
 
@@ -442,9 +523,45 @@ int main(int argc, char* argv[]) {
 
     }
     else {
-        printf("==== SET HIVE: USER MODE ====\n");
+        bool okInput = false;
+        while(!okInput) {
+            printf("==== SET HIVE: USER MODE ====\n");
+            printf("  Enter a single string of lower-case,\n  unique letters for the letter hive... ");
+            scanf("%s", hive);
+            if(strlen(hive) < MIN_HIVE_SIZE || strlen(hive) > MAX_HIVE_SIZE) {
+                printf("  HIVE ERROR: \"%s\" has invalid length;\n  valid hive size is between %d and %d, inclusive\n\n",hive, MIN_HIVE_SIZE, MAX_HIVE_SIZE);
+            }
+            else if(!strLower(hive)) {
+                printf("  HIVE ERROR: \"%s\" contains invalid letters;\n  valid characters are lower-case alpha only\n\n",hive);
+            }
+            else if(!noDups(hive)) {
+                printf("  HIVE ERROR: \"%s\" contains duplicate letters\n\n",hive);
+            }
+            else {
+                okInput = true;
+            }
+        }
 
-        printf("  Enter a single string of lower-case,\n  unique letters for the letter hive... ");
+        okInput = false;
+        while(!okInput) {
+            hiveSize = strlen(hive);
+            reqLetInd = -1;
+            reqLet = '\0';
+            printf("  Enter the letter from \"%s\"\n  that is required for all words: ", hive);
+            scanf("%c", reqLet);
+            reqLet = tolower(reqLet);
+            if(strchr(hive, reqLet) == NULL) {
+                printf("  HIVE ERROR: \"%s\" does not contain the letter \'%c\'\n\n",hive,reqLet);
+            }
+            else if(reqLet == '\0') {
+                continue;
+            }
+            else {
+                okInput = true;
+                reqLetInd = strchr(hive, reqLet) - hive;
+            }
+        }
+        
 
         //---------------------------------------------------------------------
         /* TODO (Task 2-C): Get hive input (part 1 of 2)
@@ -457,19 +574,11 @@ int main(int argc, char* argv[]) {
          - You may use buildHive() to help with this task
          (Task 2-C is continued a few lines below, getting the required letter)
         */
-        printf("  HIVE ERROR: \"%s\" has invalid length;\n  valid hive size is between %d and %d, inclusive\n\n",hive, MIN_HIVE_SIZE, MAX_HIVE_SIZE);
-        printf("  HIVE ERROR: \"%s\" contains invalid letters;\n  valid characters are lower-case alpha only\n\n",hive);
-        printf("  HIVE ERROR: \"%s\" contains duplicate letters\n\n",hive);
+
 
         
 
-        hiveSize = strlen(hive);
-
-        reqLetInd = -1;
-        reqLet = '\0';
-
-
-        printf("  Enter the letter from \"%s\"\n  that is required for all words: ", hive);
+        
         //---------------------------------------------------------------------
         /* TODO (Task 2-C): Get hive input (part 2 of 2)
         - Ask the user to enter the required letter, using the print statement above
@@ -478,7 +587,6 @@ int main(int argc, char* argv[]) {
         set that value you found for reqLetInd, and change reqLet to the required letter
         - Note that uppercase letters ARE valid here, unlike earlier; you will find it helpful to make them lowercase in code
         */
-        printf("  HIVE ERROR: \"%s\" does not contain the letter \'%c\'\n\n",hive,reqLet);
     }
 
     printHive(hive, reqLetInd);
@@ -510,10 +618,7 @@ int main(int argc, char* argv[]) {
         printf("\n");
 
 
-        while (strcmp(userWord, "DONE")) {
-
-            
-
+        while (strcmp(userWord, "DONE") != 0) {
             
             
             //prints the list and the hive, and gets the next input
@@ -557,7 +662,8 @@ int main(int argc, char* argv[]) {
 
         tryWord[0] = hive[0];
         tryWord[1] = '\0';
-        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet);
+        int n = 0; // tracks the index of the letter (in the hive) being appended or replaced
+        findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxWordLength, &n);
         free(tryWord);
 
     }

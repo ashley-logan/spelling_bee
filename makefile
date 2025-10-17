@@ -2,6 +2,7 @@ build:
 	rm -f spellingBee.exe
 	gcc main.c -o spellingBee.exe
 
+
 run:
 	./spellingBee.exe
 
