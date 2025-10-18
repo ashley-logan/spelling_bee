@@ -1,3 +1,5 @@
+#include "struct.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,79 +7,76 @@
 #include <stdbool.h>
 #include <time.h>
 
-const int MIN_HIVE_SIZE = 2; // smallest amount of words allowed
-const int MAX_HIVE_SIZE = 12; // largest amount of words allowed
-const int MIN_WORD_LENGTH = 4; // everyword must be at least 4 letters
 
-typedef struct WordList_struct {
-    char** words; // dynmaic array of strings
-    int numWords; // number of strings
-    int capacity; // maximum amount of strings that can be contained in the array
-} WordList;
+// typedef struct WordList_struct {
+//     char** words; // dynmaic array of strings
+//     int numWords; // number of strings
+//     int capacity; // maximum amount of strings that can be contained in the array
+// } WordList;
 
-WordList* createWordList() {
-    WordList* newList = malloc(sizeof(WordList)); // allocates memory for a new word list
-    newList->capacity = 4; // sets the capacity to 4 words
-    newList->numWords = 0; // sets the current number of words to 0
-    newList->words = malloc(newList->capacity * sizeof(char*)); // allocates memory for the words array with enough mem to store 4 character pointers
+// WordList* createWordList() {
+//     WordList* newList = malloc(sizeof(WordList)); // allocates memory for a new word list
+//     newList->capacity = 4; // sets the capacity to 4 words
+//     newList->numWords = 0; // sets the current number of words to 0
+//     newList->words = malloc(newList->capacity * sizeof(char*)); // allocates memory for the words array with enough mem to store 4 character pointers
 
-    return newList; // returns the newly creates word list
-}
+//     return newList; // returns the newly creates word list
+// }
 
-void appendWord(WordList* thisWordList, char* newWord) {
-    if(thisWordList->numWords == thisWordList->capacity) {
-        char** largerList = realloc(thisWordList->words, (thisWordList->capacity * 2) * sizeof(char*));
-        if (largerList != NULL) {
-            thisWordList->words = largerList;
-            thisWordList->capacity *= 2;
-        }
-    }
-    thisWordList->words[thisWordList->numWords] = (char*)malloc((strlen(newWord) + 1) * sizeof(char)); // allocate new memory for another word in the word list at the last position
-    strcpy(thisWordList->words[thisWordList->numWords], newWord); // copy input word into the new string allocated for the word list
-    (thisWordList->numWords)++;
-    //---------------------------------------------------------------------
-    /* TODO (Task 1-A): Write appendWord
-    - adds newWord to the end of the thisWordList (malloc'ing memory and copying the string; do NOT just copy the input pointer)
-    - increments thisWordList's numWords. If there is no space for the new word, reallocate with double the capacity
-    - by malloc'ing new memory for the words array and freeing the old memory
-    */
+// void appendWord(WordList* thisWordList, char* newWord) {
+//     if(thisWordList->numWords == thisWordList->capacity) {
+//         char** largerList = realloc(thisWordList->words, (thisWordList->capacity * 2) * sizeof(char*));
+//         if (largerList != NULL) {
+//             thisWordList->words = largerList;
+//             thisWordList->capacity *= 2;
+//         }
+//     }
+//     thisWordList->words[thisWordList->numWords] = (char*)malloc((strlen(newWord) + 1) * sizeof(char)); // allocate new memory for another word in the word list at the last position
+//     strcpy(thisWordList->words[thisWordList->numWords], newWord); // copy input word into the new string allocated for the word list
+//     (thisWordList->numWords)++;
+//     //---------------------------------------------------------------------
+//     /* TODO (Task 1-A): Write appendWord
+//     - adds newWord to the end of the thisWordList (malloc'ing memory and copying the string; do NOT just copy the input pointer)
+//     - increments thisWordList's numWords. If there is no space for the new word, reallocate with double the capacity
+//     - by malloc'ing new memory for the words array and freeing the old memory
+//     */
 
-}
+// }
 
-int buildDictionary(char* filename, WordList* dictionaryList, int minLength) {
-    FILE* dictFile = fopen(filename, "r");
-    if (dictFile == NULL) { // if file doesn't open return -1
-        return -1;
-    }
-    char tempStr[50];
-    int maxLen = 0; // initialize maxLen to default of -1, will contain the length of the longest word
+// int buildDictionary(char* filename, WordList* dictionaryList, int minLength) {
+//     FILE* dictFile = fopen(filename, "r");
+//     if (dictFile == NULL) { // if file doesn't open return -1
+//         return -1;
+//     }
+//     char tempStr[50];
+//     int maxLen = 0; // initialize maxLen to default of -1, will contain the length of the longest word
 
-    while(fscanf(dictFile, "%s", tempStr) == 1) { // while not at the end of file and dictionaryList is not full
-        if((int)strlen(tempStr) >= minLength) { // add word to list if length is at least the minimum parameter
-            maxLen = (strlen(tempStr) > maxLen)? strlen(tempStr) : maxLen;
-            appendWord(dictionaryList, tempStr);
-        }
-    }
-    return maxLen;
+//     while(fscanf(dictFile, "%s", tempStr) == 1) { // while not at the end of file and dictionaryList is not full
+//         if((int)strlen(tempStr) >= minLength) { // add word to list if length is at least the minimum parameter
+//             maxLen = (strlen(tempStr) > maxLen)? strlen(tempStr) : maxLen;
+//             appendWord(dictionaryList, tempStr);
+//         }
+//     }
+//     return maxLen;
     
-    //---------------------------------------------------------------------
-    /* TODO (Task 1-B): Write buildDictionary
-    - Opens a valid file and adds all words that are at least minLength long to the dictionaryList
-    - Returns the length of the longest valid word if all goes well, -1 otherwise
-    */
-}
+//     //---------------------------------------------------------------------
+//     /* TODO (Task 1-B): Write buildDictionary
+//     - Opens a valid file and adds all words that are at least minLength long to the dictionaryList
+//     - Returns the length of the longest valid word if all goes well, -1 otherwise
+//     */
+// }
 
-void freeWordList(WordList* list) {
-    for(int i = 0; i < list->numWords; i++) {
-        free(list->words[i]);
-    }
-    free(list->words);
-    free(list);
-    //---------------------------------------------------------------------
-    /* TODO (Task 1-C): Write freeWordList
-    - Frees the memory used by the WordList, both the words' char* arrays and the char** words array itself
-    */
-}
+// void freeWordList(WordList* list) {
+//     for(int i = 0; i < list->numWords; i++) {
+//         free(list->words[i]);
+//     }
+//     free(list->words);
+//     free(list);
+//     //---------------------------------------------------------------------
+//     /* TODO (Task 1-C): Write freeWordList
+//     - Frees the memory used by the WordList, both the words' char* arrays and the char** words array itself
+//     */
+// }
 
 int findLetter(char* str, char aLet) {
     char* ptr = strchr(str, aLet);
@@ -196,6 +195,23 @@ bool isPangram(char* str, char* hive) {
 
 }
 
+int getScore(char* word, char* hive) {
+    /* Valid words with MIN_WORD_LENGTH = 4 letters are worth 1 point each.
+    Longer valid words earn 1 point per letter. (So a 5-letter word is worth 5 points.)
+    Each puzzle includes at least one “pangram” which uses every letter. 
+    These are worth hiveSize extra points! (Ex: if hiveSize = 7, 
+        then a pangram of length 9 will earn 9 + 7 = 16 points.)
+    */
+    if(strlen(word) < MIN_WORD_LENGTH) {
+        printf("ERROR: word too small line::421");
+        return -1;
+    }
+    int pts = (strlen(word) == MIN_WORD_LENGTH) ? 1 : strlen(word);
+    if(isPangram(word, hive)) {
+        pts += strlen(hive);
+    }
+    return pts;
+}
 
 void printHive(char* hive, int reqLetInd) {
     printf("  Hive: \"%s\"\n", hive);
@@ -210,12 +226,12 @@ void printHive(char* hive, int reqLetInd) {
     printf(" (all words must include \'%c\')\n\n", hive[reqLetInd]);
 }
 
-void printList(WordList* thisWordList, char* hive) {
+void printList(WordList* thisWordList, char* hive, int totScore) {
     for(int i = 0; i < thisWordList->numWords; i++) {
         if(isPangram(thisWordList->words[i], hive)) {
             (strlen(thisWordList->words[i]) == strlen(hive))? printf("***") : printf("*");
         }
-        printf("(%d) %s", getScore(thisWordList->words[i], hive), thisWordList->words[i]);
+        printf("(%d) %s\n", getScore(thisWordList->words[i], hive), thisWordList->words[i]);
     }
     //---------------------------------------------------------------------
     /* TODO (Task 4-C): Write printList
@@ -233,7 +249,6 @@ void printList(WordList* thisWordList, char* hive) {
     */
 
     printf("  Word List:\n");
-    int totScore = 0;
     printf("  Total Score: %d\n", totScore);
 
 }
@@ -410,23 +425,6 @@ void printYESorNO(bool mode) {
     }
 }
 
-int getScore(char* word, char* hive) {
-    /* Valid words with MIN_WORD_LENGTH = 4 letters are worth 1 point each.
-    Longer valid words earn 1 point per letter. (So a 5-letter word is worth 5 points.)
-    Each puzzle includes at least one “pangram” which uses every letter. 
-    These are worth hiveSize extra points! (Ex: if hiveSize = 7, 
-        then a pangram of length 9 will earn 9 + 7 = 16 points.)
-    */
-    if(strlen(word) < MIN_WORD_LENGTH) {
-        printf("ERROR: word too small line::421");
-        return -1;
-    }
-    int pts = (strlen(word) == MIN_WORD_LENGTH) ? 1 : strlen(word);
-    if(isPangram(word)) {
-        pts += strlen(hive);
-    }
-    return pts;
-}
 
 
 int main(int argc, char* argv[]) {
@@ -615,7 +613,7 @@ int main(int argc, char* argv[]) {
             
             //prints the list and the hive, and gets the next input
             printf("\n");
-            printList(userWordList, hive);
+            printList(userWordList, hive, 0);
             printf("............................................\n");
             printHive(hive, reqLetInd);
 
@@ -678,7 +676,7 @@ int main(int argc, char* argv[]) {
     int numValidWords = solvedList->numWords;
     for(int i = 0; i < numValidWords; i++) {
 
-        if(isPangram(solvedList->words[i])) {
+        if(isPangram(solvedList->words[i], hive)) {
             numPangrams++;
             if(strlen(solvedList->words[i]) == strlen(hive)) {
                 numPerfectPangrams++;
@@ -704,7 +702,7 @@ int main(int argc, char* argv[]) {
           total possible score, and whether there is a bingo. Save those values in the corresponding
           variables, or update the printf statements below to dispay those values
     */
-    printList(solvedList, hive);
+    printList(solvedList, hive, totScore);
 
 
     
