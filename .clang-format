@@ -1,0 +1,8 @@
+BasedOnStyle: LLVM
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: true
+PenaltyExcessCharacter: 100
+ColumnLimit: 100
+IndentWidth: 4   
+TabWidth: 4        
+UseTab: Always
