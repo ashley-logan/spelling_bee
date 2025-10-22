@@ -1,4 +1,5 @@
 #include "puzzle_state.h"
+#include "cJSON.h"
 #include "helpers.h"
 #include "print_utils.h"
 #include <stdio.h>
@@ -41,6 +42,8 @@ void getUserWord(char *userWord) {
 	scanf("%s", userWord);
 	printf("\n");
 }
+
+void getServerWord(char *userWord) {}
 
 void buildHive(char *str, char *hive) {
 	int i = 0;
@@ -422,4 +425,68 @@ void freeGame(Puzzle ***puzzleArr, int numPuzzles) {
 	}
 	free(*puzzleArr);
 	puzzleArr = NULL;
+}
+
+static Puzzle **puzzleArr = NULL;
+static int numPuzzles = 0;
+static Puzzle *currPuzzle = NULL;
+static WordList *dictionaryList = NULL;
+
+void startGame() {
+	char dict[50] = "dictionary.txt";
+	if (currPuzzle == NULL) {
+
+		// start game and such
+		WordList *dictionaryList = createWordList();
+		int maxWordLength = buildDictionary(dict, dictionaryList, MIN_WORD_LENGTH);
+		if (dictionaryList->numWords <= 0) {
+			return;
+		}
+		randHive(dictionaryList, &puzzleArr, &numPuzzles, 7);
+		currPuzzle = puzzleArr[numPuzzles - 1];
+	}
+}
+
+int checkWord(char *word) {
+	int result = isValidWord(word, currPuzzle);
+	if (result < 0) {
+		return result;
+	}
+	result = findWord(dictionaryList, word, 0, dictionaryList->numWords - 1, false);
+	if (result < 0) {
+		return result;
+	}
+	return 1;
+}
+
+char *getMessage(int result) {
+	if (result == -3) {
+		return strdup("INVALID: Word must be at least 4 letters");
+	} else if (result == -2) {
+		return strdup("INVALID: Word must contain the required letter");
+	} else if (result == -1) {
+		return strdup("INVALID: Word contains one or more letters not in the current hive");
+	} else if (result < 0) {
+		return strdup("INVALID: Word is not in the current dictionary");
+	} else {
+		return strdup("");
+	}
+}
+
+void getResponse(char *word, cJSON *response) {
+	int result = checkWord(word);
+	bool valid = result == 1;
+	char *message = getMessage(result);
+	int score = (valid) ? calcScore(word, currPuzzle->hive) : 0;
+	if (valid) {
+		updateUserScore(word, currPuzzle);
+	}
+
+	cJSON_AddBoolToObject(response, "valid", valid);
+	cJSON_AddNumberToObject(response, "score", score);
+	cJSON_AddStringToObject(response, "message", message);
+	cJSON_AddStringToObject(response, "word", word);
+
+	if (valid) {
+	}
 }
