@@ -1,0 +1,9 @@
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/spellingBee.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/clean-all.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/clean-unix.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/run.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/run_play.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/run_simp.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/run_sample.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/edit_cache.dir
+/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build/CMakeFiles/rebuild_cache.dir

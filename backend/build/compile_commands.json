@@ -1,0 +1,38 @@
+[
+{
+  "directory": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build",
+  "command": "/usr/bin/cc  -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/include  -arch arm64 -o CMakeFiles/spellingBee.dir/src/main.c.o -c /Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/main.c",
+  "file": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/main.c",
+  "output": "CMakeFiles/spellingBee.dir/src/main.c.o"
+},
+{
+  "directory": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build",
+  "command": "/usr/bin/cc  -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/include  -arch arm64 -o CMakeFiles/spellingBee.dir/src/puzzle_state.c.o -c /Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/puzzle_state.c",
+  "file": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/puzzle_state.c",
+  "output": "CMakeFiles/spellingBee.dir/src/puzzle_state.c.o"
+},
+{
+  "directory": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build",
+  "command": "/usr/bin/cc  -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/include  -arch arm64 -o CMakeFiles/spellingBee.dir/src/print_utils.c.o -c /Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/print_utils.c",
+  "file": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/print_utils.c",
+  "output": "CMakeFiles/spellingBee.dir/src/print_utils.c.o"
+},
+{
+  "directory": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build",
+  "command": "/usr/bin/cc  -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/include  -arch arm64 -o CMakeFiles/spellingBee.dir/src/helpers.c.o -c /Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/helpers.c",
+  "file": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/helpers.c",
+  "output": "CMakeFiles/spellingBee.dir/src/helpers.c.o"
+},
+{
+  "directory": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build",
+  "command": "/usr/bin/cc  -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/include  -arch arm64 -o CMakeFiles/spellingBee.dir/src/extra_cred.c.o -c /Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/extra_cred.c",
+  "file": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/extra_cred.c",
+  "output": "CMakeFiles/spellingBee.dir/src/extra_cred.c.o"
+},
+{
+  "directory": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/build",
+  "command": "/usr/bin/cc  -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src -I/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/include  -arch arm64 -o CMakeFiles/spellingBee.dir/src/cJSON.c.o -c /Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/cJSON.c",
+  "file": "/Users/ashley-logan/Desktop/program_repo/c_repo/cs211_repo/Projects/spelling_bee/backend/src/cJSON.c",
+  "output": "CMakeFiles/spellingBee.dir/src/cJSON.c.o"
+}
+]
