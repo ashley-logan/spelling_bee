@@ -1,12 +1,20 @@
+CC = clang
+SRCDIR = src
+SOURCES = $(addprefix $(SRCDIR)/, main.c puzzle_state.c extra_cred.c print_utils.c helpers.c)
+OBJS = $(SOURCES:.c=.o)
+TARGET = spellingBee
+INPUTDIR = data
+
+
 build:
-	rm -f spellingBee.exe
-	gcc main.c helpers.c print_utils.c puzzle_state.c extra_cred.c -o spellingBee.exe
+	rm -f $(OBJS) $(TARGET)
+	$(CC) $(SOURCES) -o $(TARGET)
 
 run:
 	./spellingBee.exe
 
 run_simp:
-	./spellingBee.exe -d newsamp.txt
+	./spellingBee.exe -d $(addprefix $(INPUTDIR)/, newsamp.txt)
 
 
 
@@ -36,4 +44,6 @@ run_play:
 
 run_sample:
 	./spellingBee.exe -d newsamp.txt < sampleIn.txt
+
+.PHONY: build run run_play run_sample clean
 
