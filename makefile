@@ -1,7 +1,6 @@
 build:
 	rm -f spellingBee.exe
-	gcc main.c struct.c utils.c -o spellingBee.exe
-
+	gcc main.c helpers.c print_utils.c puzzle_state.c -o spellingBee.exe
 
 run:
 	./spellingBee.exe
@@ -9,12 +8,11 @@ run:
 run_simp:
 	./spellingBee.exe -d newsamp.txt
 
-run_simp:
-	./spellingBee.exe -p -r 7
+
 
 valgrind:
 	rm -f spellB_debug.exe
-	gcc -g main.c struct.c utils.c -o spellB_debug.exe
+	gcc -g main.c helpers.c print_utils.c puzzle_state.c -o spellB_debug.exe
 	echo "watched w" > sampleIn.txt
 	valgrind -s --tool=memcheck --leak-check=yes --track-origins=yes ./spellB_debug.exe < sampleIn.txt
 

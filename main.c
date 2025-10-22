@@ -1,46 +1,12 @@
+#include "helpers.h"
+#include "print_utils.h"
+#include "puzzle_state.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#include "struct.h"
-#include "utils.h"
-
-void printHive(Hive *hive, int reqLetInd) {
-	printf("  Hive: \"%s\"\n", hive->content);
-	printf("         ");
-	for (int i = 0; i < reqLetInd; i++) {
-		printf(" ");
-	}
-	printf("^");
-	for (int i = reqLetInd + 1; i < hive->size; i++) {
-		printf(" ");
-	}
-	printf(" (all words must include \'%c\')\n\n", hive->content[reqLetInd]);
-}
-
-void printList(WordList *thisWordList, Hive *hive, scoreCard *userScore) {
-	printf("  Word List:\n");
-	for (int i = 0; i < thisWordList->numWords; i++) {
-		if (isPangram(thisWordList->words[i], hive->content)) {
-			userScore->pangrams++;
-			if (strlen(thisWordList->words[i]) == hive->size) {
-				userScore->perfPangrams++;
-				printf("**");
-			}
-			printf("*");
-		}
-		printf
-			// TODO all scores
-			printf("  (%d) %s\n", getScore(solvedList->words[i], hive->content),
-				   thisWordList->words[i]);
-		hive->score += getScore(solvedList->words[i], hive->content);
-	}
-
-	printf("  Total Score: %d\n", hive->score);
-}
 
 // Provided for you, to determine the program settings based on parameters
 bool setSettings(int argc,
@@ -100,197 +66,20 @@ bool setSettings(int argc,
 	return true;
 }
 
-void printONorOFF(bool mode) {
-	if (mode) {
-		printf("ON\n");
-	} else {
-		printf("OFF\n");
-	}
-}
-
-void printYESorNO(bool mode) {
-	if (mode) {
-		printf("YES\n");
-	} else {
-		printf("NO\n");
-	}
-}
-typedef struct {
-	char content[MAX_HIVE_SIZE + 1];
-	int size;
-	int score;
-} Hive
-
-	Hive *
-	createHive() {
-	Hive newHive;
-	newHive.score = 0;
-	newHive.size = 0;
-	return &newHive;
-}
-
-void randHive(WordList *dictionaryList,
-			  Hive **hiveArr,
-			  int *numHives,
-			  int hiveSize,
-			  char *reqLet,
-			  int *reqLetInd) {
-	hiveArr = realloc(hiveArr, sizeof(Hive *) * (numHives + 1));
-	hiveArr[numHives] = createHive();
-	hiveArr[numHives]->size = hiveSize;
-	*numHives++;
-	char oldHive[hiveArr[numHives]->size + 1];	 // hold old hive (or empty hive if new game)
-	strcpy(oldHive, hiveArr[numHives]->content); // copy old hive into the temporary string
-	char oldReqLet = *reqLet; // hold old required letter (or null terminator if new game)
-	WordList *fitWords = findAllFitWords(dictionaryList, hiveSize);
-
-	printf("==== SET HIVE: RANDOM MODE ====\n");
-
-	do { // get a new random hive that is different than the previous hive
-		int pickOne = rand() % fitWords->numWords;
-		char *chosenFitWord = fitWords->words[pickOne];
-		buildHive(chosenFitWord, hiveArr[numHives]->content);
-	} while (strcmp(oldHive, hiveArr[numHives]->content) == 0);
-
-	do { // get a new required letter that is different from the previous required letter
-		*reqLetInd = rand() % hiveSize;
-		*reqLet = hive[*reqLetInd];
-	} while (oldReqLet == reqLet);
-
-	freeWordList(fitWords);
-}
-
-void customHive(
-	WordList *dictionaryList, Hive **hiveArr, int *numHives, char *reqLet, int *reqLetInd) {
-	hiveArr = realloc(hiveArr, sizeof(Hive *) * (numHives + 1));
-	hiveArr[numHives] = createHive();
-	hiveArr[numHives]->size = hiveSize;
-	bool okInput = false;
-	int reqLetInd = -1;
-	while (!okInput) {
-		printf("==== SET HIVE: USER MODE ====\n");
-		printf("  Enter a single string of lower-case,\n  unique letters for "
-			   "the "
-			   "letter hive... ");
-		scanf("%s", hiveArr[numHives]->content);
-		if (strlen(hiveArr[numHives]->content) < MIN_HIVE_SIZE ||
-			strlen(curhiveArr[numHives]->content) > MAX_HIVE_SIZE) {
-			printf("  HIVE ERROR: \"%s\" has invalid length;\n  valid hive "
-				   "size is "
-				   "between %d and %d, inclusive\n\n",
-				   hiveArr[numHives]->content, MIN_HIVE_SIZE, MAX_HIVE_SIZE);
-		} else if (!strLower(currHive->content)) {
-			printf("  HIVE ERROR: \"%s\" contains invalid letters;\n  valid "
-				   "characters are lower-case alpha only\n\n",
-				   hiveArr[numHives]->content);
-		} else if (!noDups(hiveArr[numHives]->content)) {
-			printf("  HIVE ERROR: \"%s\" contains duplicate letters\n\n",
-				   hiveArr[numHives]->content);
-		} else {
-			hiveArr[numHives]->size = strlen(hiveArr[numHives]->content);
-			okInput = true;
-		}
-	}
-
-	okInput = false;
-	while (!okInput) {
-		*reqLet = '\0';
-		printf("  Enter the letter from \"%s\"\n  that is required for all "
-			   "words: ",
-			   hiveArr[numHives]->content);
-		scanf(" %c", reqLet);
-		*reqLet = tolower(*reqLet);
-		if (*reqLet == '\0') {
-			continue;
-		}
-		if (strchr(hiveArr[numHives]->content, *reqLet) == NULL) {
-			printf("  HIVE ERROR: \"%s\" does not contain the letter "
-				   "\'%c\'\n\n",
-				   hive, *reqLet);
-		} else {
-			okInput = true;
-			*reqLetInd = strchr(hiveArr[numHives]->content, *reqLet) - hiveArr[numHives]->content;
-		}
-	}
-}
-
-int printSingleHiveResult(WordList *solvedList, Hive *hive, scoreCard *possibleScore) {
-	bool isBingo = true;
-	int *bingoTrack = calloc(strlen(hive), sizeof(int));
-	printList(solvedList, hive->content, totScore);
-	int numValidWords = solvedList->numWords;
-	for (int i = 0; i < numValidWords; i++) {
-		if (isPangram(solvedList->words[i], hive->content)) {
-			numPangrams++;
-			if (strlen(solvedList->words[i]) == hive->size) {
-				numPerfectPangrams++;
-			}
-		}
-
-		char *hiveInd = strchr(hive->content, (solvedList->words[i])[0]);
-		totScore +=
-			getScore(solvedList->words[i], hive->content) bingoTrack[hiveInd - hive->content]++;
-	}
-
-	for (int i = 0; i < hive->size; i++) {
-		if (bingoTrack[i] < 1) {
-			isBingo = false;
-		}
-	}
-	free(bingoTrack);
-
-	possibleScore->numWords += numValidWords;
-	possibleScore->pangrams += numPangrams;
-	possibleScore->perfPangrams += numPerfectPangrams;
-	if (isBingo) {
-		possibleScore->bingos++;
-	}
-	possibleScore->score += totScore;
-
-	// Additional results are printed here:
-	printf("\n");
-	printf("  Total counts for hive \"%s\":\n", hive->content);
-	printf("                         ");
-	for (int i = 0; i < reqLetInd; i++) {
-		printf(" ");
-	}
-	printf("^\n");
-	printf("    Number of Valid Words: %d\n", numValidWords);
-	printf("    Number of ( * ) Pangrams: %d\n", numPangrams);
-	printf("    Number of (***) Perfect Pangrams: %d\n", numPerfectPangrams);
-	printf("    Bingo: ");
-	printYESorNO(isBingo);
-	printf("    Total Score Possible: %d\n", totScore);
-}
-
-void printAllResults(WordList *solvedList, Hive **hiveArr, int numHives) {
-
-	for (int i = 0; i < numHives; i++) {
-		printSingleHiveResult(solvedList, hiveArr[i], scoreCard * possibleScore);
-	}
-	printf("    Number of Valid Words Found: %d/%d\n", userValidWords, possibleScore->numWords);
-	printf("    Number of ( * ) Pangrams Found: %d/%d\n", userPangrams, possibleScore->pangrams);
-	printf("    Number of (***) Perfect Pangrams Found: %d/%d\n", userPerf,
-		   possibleScore->perfPangrams);
-	printf("    Number of Bingos Achieved: %d/%d\n", userBingos, possibleScore->bingos);
-	printf("    Total Score Possible: %d\n", possibleScore->score);
-}
-
 int main(int argc, char *argv[]) {
 	printf("\n----- Welcome to the CS 211 Spelling Bee Game & Solver! -----\n\n");
-	Hive **hiveArr =
-		NULL; // array that will hold each hive (only one if the user never resets the hive)
+	Puzzle **puzzleArr = NULL;
+	int numPuzzles = 0;
 	bool randMode = false;
 	char dict[100] = "dictionary.txt";
 	bool playMode = false;
 	bool bruteForce = true;
 	bool seedSelection = false;
 	int hiveSize = 0;
-	int numHives = 0;
 	char reqLet = '\0';
 	int reqLetInd = -1;
 
-	if (!setSettings(argc, argv, &randMode, &(currHive->size), dict, &playMode, &bruteForce,
+	if (!setSettings(argc, argv, &randMode, &hiveSize, dict, &playMode, &bruteForce,
 					 &seedSelection)) {
 		printf("Invalid command-line argument(s).\nTerminating program...\n");
 		return 1;
@@ -312,8 +101,10 @@ int main(int argc, char *argv[]) {
 	// dictionary file
 	printf("Building array of words from dictionary... \n");
 	WordList *dictionaryList = createWordList();
-	int maxWordLength = buildDictionary(dict, dictionaryList, MIN_WORD_LENGTH);
+	int maxWordLength = buildDictionary(dict, dictionaryList,
+										MIN_WORD_LENGTH); // creates a word list from dictionary
 	if (maxWordLength == -1) {
+		// checks that building dictionary list was successful
 		printf("  ERROR in building word array.\n");
 		printf("  File not found or incorrect number of valid words.\n");
 		printf("Terminating program...\n");
@@ -324,6 +115,7 @@ int main(int argc, char *argv[]) {
 	printf("Analyzing dictionary...\n");
 
 	if (dictionaryList->numWords < 0) {
+		// makes sure dictionary isn't empty
 		printf("  Dictionary %s not found...\n", dict);
 		printf("Terminating program...\n");
 		return 0;
@@ -341,10 +133,15 @@ int main(int argc, char *argv[]) {
 			   dictionaryList->numWords, MIN_WORD_LENGTH);
 	}
 
-	(randMode) ? randHive(dictionaryList, hiveArr, &numHives, hiveSize, &reqLet, &reqLetInd)
-			   : customHive(dictionaryList, hiveArr, &numHives, &reqLet, &reqLetInd);
-
-	printHive(hiveArr[numHives - 1], reqLetInd);
+	(randMode) ? randHive(dictionaryList, &puzzleArr, &numPuzzles, hiveSize)
+			   : customHive(dictionaryList, &puzzleArr, &numPuzzles);
+	// builds the hive; either prompting the user for input or creating it randomly
+	printf("curr num puzzles %d\n", numPuzzles);
+	if (puzzleArr == NULL) {
+		printf("array is null\n");
+		return 0;
+	}
+	Puzzle *currPuzzle = puzzleArr[numPuzzles - 1];
 
 	if (playMode) {
 		printf("==== PLAY MODE ====\n");
@@ -362,45 +159,51 @@ int main(int argc, char *argv[]) {
 		strcpy(userWord, "default");
 
 		WordList *userWordList = createWordList();
-		scoreCard userScore = createScoreCard();
-		scoreCard possibleScore = createScoreCard();
 		int userScore = 0;
 
 		printf("............................................\n");
-		printHive(hiveArr[numHives - 1], reqLetInd);
+		printHive(currPuzzle);
 
 		printf("  Enter a word (enter DONE to quit): ");
 		scanf("%s", userWord);
 		printf("\n");
 
 		while (strcmp(userWord, "DONE") != 0) {
-			if (strcmp(userWord, "NEW") == 0 && hive->score >= 20) {
-				printSingleHiveResult(solvedList, hiveArr[numHives - 1], &possibleScore);
-				(randMode)
-					? randHive(dictionaryList, hiveArr, &numHives, hiveSize, &reqLet, &reqLetInd)
-					: customHive(dictionaryList, hiveArr, &numHives, &reqLet, &reqLetInd);
-				printf("  Enter a word (enter DONE to quit): ");
-				scanf("%s", userWord);
-				printf("\n");
+			if (strcmp(userWord, "NEW") == 0) {
+				populateSolvedList(dictionaryList, maxWordLength, currPuzzle, bruteForce);
+				populateMaxScore(currPuzzle);
+				printPuzzleResult(currPuzzle);
+				(randMode) ? randHive(dictionaryList, &puzzleArr, &numPuzzles, hiveSize)
+						   : customHive(dictionaryList, &puzzleArr, &numPuzzles);
+				currPuzzle = puzzleArr[numPuzzles - 1];
+				printHive(currPuzzle);
+				getUserWord(userWord);
 				continue;
 			}
-			if (isValidWord(userWord, hive, reqLet) &&
-				findWord(dictionaryList, userWord, 0, dictionaryList->numWords - 1, false) >= 0)
+			int result = isValidWord(userWord, currPuzzle);
+			if (result == -3) {
+				printf("INVALID INPUT: %s is not long enough (must be >= %d letters)\n", userWord,
+					   MIN_WORD_LENGTH);
+			} else if (result == -2) {
+				printf("INVALID INPUT: %s does not contain the required letter %c\n", userWord,
+					   currPuzzle->reqLet);
+			} else if (result == -1) {
+				printf(
+					"INVALID INPUT: %s contains one or more letters not in the current hive (%s)\n",
+					userWord, currPuzzle->hive);
+			} else if (findWord(dictionaryList, userWord, 0, dictionaryList->numWords, false) < 0) {
+				printf("INVALID INPUT: %s is not present in the current dictionary\n", userWord);
+			} else {
 				appendWord(userWordList, userWord);
-			hive->score += getScore(userWord, hive->content);
-			userScore += getScore(userWord, hive->content);
+				updateUserScore(userWord, currPuzzle);
+			}
 
 			// prints the list and the hive, and gets the next input
 			printf("\n");
-			printList(userWordList, hiveArr[numHives - 1], userScore);
+			printList(userWordList, currPuzzle);
 			printf("............................................\n");
-			printHive(hive, reqLetInd);
-			if (hive->score >= 20) {
-				printf("To keep your total score and get a new hive enter NEW\n");
-			}
-			printf("  Enter a word (enter DONE to quit): ");
-			scanf("%s", userWord);
-			printf("\n");
+			printHive(currPuzzle);
+			getUserWord(userWord); // prompts user for the next word
 		}
 
 		freeWordList(userWordList);
@@ -411,94 +214,25 @@ int main(int argc, char *argv[]) {
 		//---------------------------------------------------------------------
 	}
 
-	printf("==== SPELLING BEE SOLVER ====\n");
-	int totScore = 0;
-	for (int i = 0; i < numHives; i++) {
-	}
-	printf("  Valid words from hive \"%s\":\n", hive);
-	printf("                         ");
-	for (int i = 0; i < reqLetInd; i++) {
-		printf(" ");
-	}
-	printf("^\n");
+	printPuzzleResult(currPuzzle);
 
-	WordList *solvedList = createWordList();
-
-	if (bruteForce) { // find all words that work... (1) brute force
-		bruteForceSolve(dictionaryList, solvedList, hive, reqLet);
-	} else {
-		char *tryWord = (char *)malloc(sizeof(char) * (maxWordLength + 1));
-
-		tryWord[0] = hive[0];
-		tryWord[1] = '\0';
-		int *letTracker = calloc(strlen(hive), sizeof(int)); // tracks the index of the letter (in
-															 // the hive) being appended or replaced
-		findAllMatches(dictionaryList, solvedList, tryWord, hive, reqLet, maxWordLength,
-					   letTracker);
-		free(tryWord);
-		free(letTracker);
-	}
-
-	int longestSolvedWordLen = 0;
-	for (int i = 0; i < solvedList->numWords; i++) {
-		if (strlen(solvedList->words[i]) > longestSolvedWordLen) {
-			longestSolvedWordLen = strlen(solvedList->words[i]);
-		}
-	}
-
-	// Helpful variables
-	bool isBingo = true;
-	int numPangrams = 0;
-	int numPerfectPangrams = 0;
-	int totScore = 0;
-	int *bingoTrack = calloc(strlen(hive), sizeof(int));
-
-	int numValidWords = solvedList->numWords;
-	for (int i = 0; i < numValidWords; i++) {
-		if (isPangram(solvedList->words[i], hive)) {
-			numPangrams++;
-			if (strlen(solvedList->words[i]) == strlen(hive)) {
-				numPerfectPangrams++;
-			}
-		}
-		totScore += getScore(solvedList->words[i], hive);
-		char *hiveInd = strchr(hive, (solvedList->words[i])[0]);
-		bingoTrack[hiveInd - hive]++;
-	}
-
-	for (int i = 0; i < strlen(hive); i++) {
-		if (bingoTrack[i] < 1) {
-			isBingo = false;
-		}
-	}
-	free(bingoTrack);
-
-	//---------------------------------------------------------------------
-	/* TODO (Task 5-B): Display solver results
-	- Display list of words solver found, noting pangrams (*) and perfect
-	pangrams
-	(***) with asterisks
-	- Calculate the number of valid words, number of pangrams, number of perfect
-	pangrams, total possible score, and whether there is a bingo. Save those
-	values in the corresponding variables, or update the printf statements below
-	to dispay those values
-	*/
-	printList(solvedList, hive, totScore);
+	populateSolvedList(dictionaryList, maxWordLength, currPuzzle, bruteForce);
+	printList(currPuzzle->solvedList, currPuzzle);
+	populateMaxScore(currPuzzle);
 
 	// Additional results are printed here:
-	printf("\n");
-	printf("  Total counts for hive \"%s\":\n", hive);
-	printf("                         ");
-	for (int i = 0; i < reqLetInd; i++) {
-		printf(" ");
-	}
-	printf("^\n");
-	printf("    Number of Valid Words: %d\n", numValidWords);
-	printf("    Number of ( * ) Pangrams: %d\n", numPangrams);
-	printf("    Number of (***) Perfect Pangrams: %d\n", numPerfectPangrams);
-	printf("    Bingo: ");
-	printYESorNO(isBingo);
-	printf("    Total Score Possible: %d\n", totScore);
+
+	scoreCard finalMaxScore = createScoreCard();
+	scoreCard finalUserScore = createScoreCard();
+	calcEndGameScore(&finalUserScore, &finalMaxScore, puzzleArr, numPuzzles);
+
+	printf("    FINAL Words Found: %d/%d\n", finalUserScore.numWords, finalMaxScore.numWords);
+	printf("    FINAL ( * ) Pangrams Found: %d/%d\n", finalUserScore.pangrams,
+		   finalMaxScore.pangrams);
+	printf("    FINAL (***) Perfect Pangrams Found: %d/%d\n", finalUserScore.perfPangrams,
+		   finalMaxScore.perfPangrams);
+	printf("    FINAL Bingos Achieved: %d/%d\n", finalUserScore.bingos, finalMaxScore.bingos);
+	printf("    FINAL Score: %d/%d\n", finalUserScore.score, finalMaxScore.score);
 
 	//---------------------------------------------------------------------
 	/* TODO Extra credit: Display frequency table
@@ -520,7 +254,7 @@ int main(int argc, char *argv[]) {
 	*/
 
 	freeWordList(dictionaryList);
-	freeWordList(solvedList);
+	freeGame(&puzzleArr, numPuzzles);
 	printf("\n\n");
 	return 0;
 }
