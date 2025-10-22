@@ -1,6 +1,6 @@
 build:
 	rm -f spellingBee.exe
-	gcc main.c helpers.c print_utils.c puzzle_state.c -o spellingBee.exe
+	gcc main.c helpers.c print_utils.c puzzle_state.c extra_cred.c -o spellingBee.exe
 
 run:
 	./spellingBee.exe

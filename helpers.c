@@ -1,6 +1,7 @@
 #include "helpers.h"
 #include "puzzle_state.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 bool strLower(const char *word) {
 	for (int i = 0; word[i] != '\0'; i++) {
@@ -49,8 +50,18 @@ int findLetter(const char *str, const char aLet) {
 
 int countUniqueLetters(const char *str) {
 	int count = 0;
-	for (int i = 0; i < 256; i++) {
-		if (findLetter(str, (char)i) != -1) {
+	int letterCount[26] = {0};
+	int asciiLowerBound = 97;
+	char currChar;
+	for (int i = 0; i < strlen(str); i++) {
+		currChar = tolower(str[i]);
+		if (isalpha(currChar)) {
+			int ind = abs(asciiLowerBound - (int)currChar);
+			letterCount[ind]++;
+		}
+	}
+	for (int i = 0; i < 26; i++) {
+		if (letterCount[i] >= 1) {
 			count++;
 		}
 	}

@@ -1,3 +1,4 @@
+#include "extra_cred.h"
 #include "helpers.h"
 #include "print_utils.h"
 #include "puzzle_state.h"
@@ -233,6 +234,7 @@ int main(int argc, char *argv[]) {
 		   finalMaxScore.perfPangrams);
 	printf("    FINAL Bingos Achieved: %d/%d\n", finalUserScore.bingos, finalMaxScore.bingos);
 	printf("    FINAL Score: %d/%d\n", finalUserScore.score, finalMaxScore.score);
+	createFreqTable(currPuzzle->solvedList, currPuzzle->hive);
 
 	//---------------------------------------------------------------------
 	/* TODO Extra credit: Display frequency table
@@ -252,7 +254,6 @@ int main(int argc, char *argv[]) {
 	Note that the lengths 4-8 are shown here because the longest word is 8
 	letters long, but that will change depending on the hive
 	*/
-
 	freeWordList(dictionaryList);
 	freeGame(&puzzleArr, numPuzzles);
 	printf("\n\n");
