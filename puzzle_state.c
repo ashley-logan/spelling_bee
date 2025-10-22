@@ -43,7 +43,6 @@ void getUserWord(char *userWord) {
 }
 
 void buildHive(char *str, char *hive) {
-	char *travHive = hive;
 	int i = 0;
 	for (char c = 'a'; c <= 'z'; c++) { // loop through every lowercase letter in the alphabet
 		if (i == MAX_HIVE_SIZE) {
