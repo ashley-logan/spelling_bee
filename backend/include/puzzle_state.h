@@ -59,10 +59,5 @@ void findAllMatches(WordList *dictionaryList,
 void freeWordList(WordList *list);
 void freeGame(Puzzle ***puzzleArr, int numPuzzles);
 
-void startGame();
-int checkWord(const char *word);
-char *getMessage(int result);
-void getResponse(const char *word, cJSON *response);
-void getHiveResponse(int hiveSize, cJSON *response);
 
 #endif

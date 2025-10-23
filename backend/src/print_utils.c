@@ -32,6 +32,38 @@ void printHive(const Puzzle *puzzle) {
 	printf(" (all words must include \'%c\')\n\n", puzzle->hive[reqLetInd]);
 }
 
+char *displayHive(const Puzzle *puzzle) {
+	int reqLetInd = strchr(puzzle->hive, puzzle->reqLet) - puzzle->hive;
+	static char display[1000];
+	snprintf(display, sizeof(display), "  Hive: \"%s\"\n", puzzle->hive);
+	// printf("  Hive: \"%s\"\n", puzzle->hive);
+	strcat(display, "         ");
+	for (int i = 0; i < reqLetInd; i++) {
+		strcat(display, " ");
+	}
+	strcat(display, "^");
+	for (int i = reqLetInd + 1; i < strlen(puzzle->hive); i++) {
+		strcat(display, " ");
+	}
+	snprintf(strlen(display) + display, sizeof(display), " (all words must include \'%c\')\n\n",
+			 puzzle->hive[reqLetInd]);
+	return display;
+}
+
+char *displayList(WordList *list, const Puzzle *puzzle) {
+	static char userWords[1024];
+	snprintf(userWords, sizeof(userWords), "  Word List:\n");
+	for (int i = 0; i < list->numWords; i++) {
+		if (isPangram(list->words[i], puzzle->hive)) {
+			strlen(list->words[i]) == strlen(puzzle->hive) ? strcat(userWords, "***")
+														   : strcat(userWords, "*");
+		}
+		int score = calcScore(list->words[i], puzzle->hive);
+		snprintf(strlen(userWords) + userWords, sizeof(userWords), "(%d) %s\n", score,
+				 list->words[i]);
+	}
+}
+
 void printList(WordList *thisWordList, const Puzzle *puzzle) {
 	// should not modify
 	printf("  Word List:\n");
