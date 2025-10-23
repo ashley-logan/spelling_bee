@@ -233,7 +233,7 @@ void populateMaxScore(Puzzle *puzzle) {
 	printf("max score: %d\n", newScore);
 }
 
-void updateUserScore(char *word, Puzzle *puzzle) {
+void updateUserScore(const char *word, Puzzle *puzzle) {
 	// updates the userScore field for the current puzzle object
 	int pangram = 0;
 	int perfPangram = 0;
@@ -336,7 +336,7 @@ void bruteForceSolve(WordList *dictionaryList, Puzzle *puzzle) {
 	*/
 }
 
-int findWord(WordList *thisWordList, char *aWord, int loInd, int hiInd, bool isRoot) {
+int findWord(WordList *thisWordList, const char *aWord, int loInd, int hiInd, bool isRoot) {
 	/* TODO (Task 6-B): Complete findWord
 	 * - Fix all the if statements that say 'if(true)' with the correct binary
 	 * search cases
@@ -447,7 +447,7 @@ void startGame() {
 	}
 }
 
-int checkWord(char *word) {
+int checkWord(const char *word) {
 	int result = isValidWord(word, currPuzzle);
 	if (result < 0) {
 		return result;
@@ -472,21 +472,51 @@ char *getMessage(int result) {
 		return strdup("");
 	}
 }
+int checkPangram(const char *word) {
+	int result = 0;
+	if (countUniqueLetters(word) == countUniqueLetters(currPuzzle->hive)) {
+		result++;
+		if (strlen(word) == strlen(currPuzzle->hive)) {
+			result++;
+		}
+	}
+	return result;
+}
 
-void getResponse(char *word, cJSON *response) {
+void constructValidResponse(const char *word, cJSON *response) {
+	int score = calcScore(word, currPuzzle->hive);
+	int pangramResult = checkPangram(word);
+	bool pangram = pangramResult >= 1;
+	bool perfPangram = pangramResult == 2;
+
+	cJSON_AddBoolToObject(response, "valid", true);
+	cJSON_AddStringToObject(response, "word", word);
+	cJSON_AddNumberToObject(response, "score", score);
+	cJSON_AddBoolToObject(response, "pangram", pangram);
+	cJSON_AddBoolToObject(response, "perfect-pangram", perfPangram);
+}
+
+void constructInvalidResponse(const char *word, cJSON *response, int result) {
+	char *message = getMessage(result);
+
+	cJSON_AddBoolToObject(response, "valid", false);
+	cJSON_AddStringToObject(response, "word", word);
+	cJSON_AddStringToObject(response, "message", message);
+}
+
+void getResponse(const char *word, cJSON *response) {
 	int result = checkWord(word);
 	bool valid = result == 1;
-	char *message = getMessage(result);
-	int score = (valid) ? calcScore(word, currPuzzle->hive) : 0;
 	if (valid) {
 		updateUserScore(word, currPuzzle);
+		constructValidResponse(word, response);
+	} else {
+		constructInvalidResponse(word, response, result);
 	}
+}
 
-	cJSON_AddBoolToObject(response, "valid", valid);
-	cJSON_AddNumberToObject(response, "score", score);
-	cJSON_AddStringToObject(response, "message", message);
-	cJSON_AddStringToObject(response, "word", word);
-
-	if (valid) {
-	}
+void getHiveResponse(int hiveSize, cJSON *response) {
+	randHive(dictionaryList, &puzzleArr, &numPuzzles, hiveSize);
+	currPuzzle = puzzleArr[numPuzzles - 1];
+	cJSON_AddStringToObject(response, "hive", currPuzzle->hive);
 }
